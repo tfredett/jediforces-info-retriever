@@ -1,7 +1,22 @@
 require 'discordrb'
 require 'dotenv'
 
+
 Dotenv.load('config.env.local', 'main.env')
 
-puts ENV['config.token'] 
-# @bot = Discordrb::Bot.new token 
+@bot = Discordrb::Bot.new(token: ENV['config.token'], client_id: ENV['config.client_id'])
+
+@rate_limiter = Discordrb::Commands::SimpleRateLimiter.new
+@rate_limiter.bucket(:message, limit: 3, time_span: 60, delay: 5)
+
+@bot.message(with_text: '!server_info') do |event|
+  next if @rate_limiter.rate_limited?(:message, event.channel)
+  event.respond ENV['config.server_info']
+end
+
+@bot.message(with_text: '!server_rules') do |event|
+  next if @rate_limiter.rate_limited?(:message, event.channel)
+  event.respond ENV['config.server_rules']
+end
+
+@bot.run
