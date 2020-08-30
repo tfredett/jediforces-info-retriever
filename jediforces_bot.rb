@@ -12,27 +12,27 @@ Dotenv.load('config.env.local', 'main.env')
 @noob_word_rate_limiter = Discordrb::Commands::SimpleRateLimiter.new
 @noob_word_rate_limiter.bucket(:message, limit: 1, time_span: 90)
 
-@bot.message(with_text: '!server_info') do |event|
+@bot.message(with_text: '!server_info_pm') do |event|
   event.author.pm ENV['config.server_info']
 end
 
-@bot.message(with_text: '!server_rules') do |event|
+@bot.message(with_text: '!server_rules_pm') do |event|
   event.author.pm ENV['config.server_rules']
 end
 
-@bot.message(with_text: '!server_info_broadcast') do |event|
+@bot.message(with_text: '!server_info') do |event|
   next if @rate_limiter.rate_limited?(:message, event.channel)
-  event.respond ENV['config.server_info']
+  @bot.send_temporary_message(event.channel, ENV['config.server_info'], 20)
 end
 
-@bot.message(with_text: '!server_rules_broadcast') do |event|
+@bot.message(with_text: '!server_rules') do |event|
   next if @rate_limiter.rate_limited?(:message, event.channel)
-  event.respond ENV['config.server_rules']
+  @bot.send_temporary_message(event.channel, ENV['config.server_rules'], 20)
 end
 
 @bot.message(with_text: '!noob_hacker') do |event|
   next if @noob_word_rate_limiter.rate_limited?(:message, event.channel)
-  event.respond 'Noobmeister: You Hacker!'
+  @bot.send_temporary_message(event.channel, 'Noobmeister: You Hacker!', 60)
 end
 
 @bot.run
